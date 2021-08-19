@@ -1,0 +1,51 @@
+import datetime
+import time
+
+from appium.webdriver.common.touch_action import TouchAction
+from behave import given, then, when
+
+
+from Pages.PageObject import ContactForm
+from utilites.Requesttobd import check_event
+
+timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+@given("Перед ввходом в Сайдбар,к номеру телефона")
+def classObjects(context):
+    context.cf = ContactForm(context.driver)
+    context.cf.clickContactFromDutton()
+    context.cf.enterCod()
+    context.cf.enterUrl()
+    TouchAction(context.driver).press(x=696, y=628).move_to(x=693, y=179).release().perform()
+    context.cf.enterUrlAnalytic()
+    context.cf.submitButton()
+    context.cf.enterLogin()
+    context.cf.enterPassword()
+    context.cf.loginButton()
+    context.cf.skipPopUp1()
+    context.cf.skipPopUp2()
+    context.cf.opensaidbar()
+
+
+@when("прокрутить")
+def touchaction(context):
+    time.sleep(3)
+    TouchAction(context.driver).press(x=550, y=706).move_to(x=549, y=462).release().perform()
+
+
+@then("клик на номер телефона")
+def cliconbutton(context):
+    context.cf.clickonCangePhone()
+    time.sleep(5)
+    context.cf.goUp()
+
+
+@then("Проверить в БД ивент edit_phone_screen")
+def checkevents(context):
+    time.sleep(20)
+    actual_event_types = check_event(timestamp)
+    expected_event_type = ("edit_phone_screen",)
+    if expected_event_type not in actual_event_types:
+        raise AssertionError(f'{expected_event_type} not in {actual_event_types}')
+
+
